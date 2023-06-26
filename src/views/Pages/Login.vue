@@ -27,7 +27,7 @@
           <b-card no-body class="bg-secondary border-0 mb-0">
             <b-card-header class="bg-transparent pb-5"  >
               <div class="text-muted text-center mt-2 mb-3"><small>Sign in with</small></div>
-              <div class="btn-wrapper text-center">
+              <!-- <div class="btn-wrapper text-center">
                 <a href="#" class="btn btn-neutral btn-icon">
                   <span class="btn-inner--icon"><img src="img/icons/common/github.svg"></span>
                   <span class="btn-inner--text">Github</span>
@@ -36,7 +36,7 @@
                   <span class="btn-inner--icon"><img src="img/icons/common/google.svg"></span>
                   <span class="btn-inner--text">Google</span>
                 </a>
-              </div>
+              </div> -->
             </b-card-header>
             <b-card-body class="px-lg-5 py-lg-5">
               <div class="text-center text-muted mb-4">
@@ -105,15 +105,20 @@ import {mapState} from 'vuex';
         
         await this.$axios.post(`auth/login`, this.model)
           .then(response => {
-            let data = response.data;
-            console.log(data);
-            localStorage.setItem('token', data.token);
-            localStorage.setItem('user', JSON.stringify(data.user));
-            this.$router.push('/dashboard');
+            console.log(response,'response');
+           
+
+              let data = response.data;
+              console.log(data);
+              localStorage.setItem('token', data.token);
+              localStorage.setItem('user', JSON.stringify(data.user));
+              this.$router.push('/dashboard');
+              this.$toast.success('Bienvenido');
+            
           })
           .catch(error => {
             console.log(error);
-            return error;
+            this.$toast.error('Credenciales Incorrectas');
           });
           ;
       },

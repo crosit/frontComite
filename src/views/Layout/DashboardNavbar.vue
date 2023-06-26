@@ -50,13 +50,13 @@
             <h6 class="text-overflow m-0">Welcome!</h6>
           </b-dropdown-header>
           <b-dropdown-item href="#!">
-            <router-link to="/profile" >
+            <router-link to="/profile" style="color: black;" >
 
-              <i class="ni ni-single-02"></i>
+              <i class="ni ni-single-02 mr-3"></i>
               <span>My profile</span>
             </router-link>
           </b-dropdown-item>
-          <b-dropdown-item href="#!">
+          <!-- <b-dropdown-item href="#!">
             <i class="ni ni-settings-gear-65"></i>
             <span>Settings</span>
           </b-dropdown-item>
@@ -68,8 +68,8 @@
             <i class="ni ni-support-16"></i>
             <span>Support</span>
           </b-dropdown-item>
-          <div class="dropdown-divider"></div>
-          <b-dropdown-item href="#!">
+          <div class="dropdown-divider"></div> -->
+          <b-dropdown-item @click="salir()" href="#!">
             <i class="ni ni-user-run"></i>
             <span>Logout</span>
           </b-dropdown-item>
@@ -113,6 +113,11 @@ export default {
     };
   },
   methods: {
+    salir(){
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      this.$router.push('/login');
+    },
     getUSer(){
       this.user = JSON.parse(localStorage.getItem('user'));
     },

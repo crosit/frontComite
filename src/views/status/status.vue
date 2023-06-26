@@ -137,6 +137,9 @@
             this.$axios.get('/estatus').then((response) => {
                 console.log(response.data)
                 this.data = response.data.data
+            }).catch((error) => {
+                error.response.status == 401 ?  this.$router.push('/page-401') :
+                console.log(error)
             })
         },
         getpermisos() {

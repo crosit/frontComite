@@ -19,11 +19,15 @@ import DashboardPlugin from './plugins/dashboard-plugin';
 import App from './App.vue';
 import store from './store/store'
 import axios from 'axios';
+import Toast from "vue-toastification";
+// Import the CSS or use your own!
+import "vue-toastification/dist/index.css";
 
 // router setup
 import router from './routes/router';
 // plugin setup
 Vue.use(DashboardPlugin);
+Vue.use(Toast);
 
 axios.defaults.baseURL = 'http://localhost:3000';
 axios.defaults.headers.common['Authorization'] = 'Bearer ' + localStorage.getItem('token');

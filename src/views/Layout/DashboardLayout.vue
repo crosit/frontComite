@@ -48,6 +48,14 @@
         >
         </sidebar-item>
         <sidebar-item
+          :link="{
+            name: 'Solicitudes',
+            path: '/solicitudes',
+            icon: 'ni ni-books text-primary',
+          }"
+        >
+        </sidebar-item>
+        <sidebar-item
             :link="{
               name: 'Icons',
               path: '/icons',

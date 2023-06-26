@@ -53,6 +53,14 @@ const routes = [
         component: () => import(/* webpackChunkName: "demo" */ '../views/status/status.vue')
       },
       {
+        path: '/solicitudes',
+        name: 'solicitudes',
+        meta: {
+          requiresAuth: true
+        },
+        component: () => import(/* webpackChunkName: "demo" */ '../views/solicitudes/solicitudes.vue')
+      },
+      {
         path: '/icons',
         name: 'icons',
         meta: {
