@@ -1,33 +1,50 @@
 <template>
-    <b-modal size="xl" v-model="modalVisible" hide-footer title="Usuarios" @hidden="closeModal">
+    <b-modal size="xl" v-model="modalVisible" hide-footer title="Lotes" @hidden="closeModal">
         <b-container>
             <div>
                 <b-form @submit.prevent="submitForm">
                     <b-row>
                         <b-col class="columns">
+                            <b-form-group label="folio" label-for="folio">
+                                <b-form-input id="folio" v-model="form.folio"></b-form-input>
+                                <span class="errores">{{ errors.folio }}</span>
+                            </b-form-group>
+
+                        </b-col>
+                        <b-col class="columns">
+
                             <b-form-group label="Descripcion" label-for="descripcion">
                                 <b-form-input id="descripcion" v-model="form.descripcion"></b-form-input>
                                 <span class="errores">{{ errors.descripcion }}</span>
                             </b-form-group>
-
-                        </b-col>
-
-                    </b-row>
-                    <div class="d-flex justify-content-end mb-4">
-
-                        <b-button @click="addFile()" variant="primary">+ Archivo</b-button>
-                    </div>
-                    <b-row v-for="item in contadorArchivos" :key="item">
-                        <b-col >
-                            <b-form-file class="mb-5" v-model="selectedFiles[item -1]" @change="handleFileChange"></b-form-file>
-                            <span class="errores">{{ errors.selectedFiles }}</span>
                         </b-col>
                     </b-row>
 
+                    <b-row>
+                        
+                        <b-col class="columns">
 
-                    <b-button  class="mt-5" type="submit" variant="success" style="width: 100%;">{{ create == true ? 'Crear'
-                        :
-                        'Actualizar' }}</b-button>
+                            <b-form-group label="Fecha Inicio" label-for="fecha_inicio">
+                                <b-form-input :disabled="!create" id="fecha_inicio" type="date" v-model="form.fecha_inicio"></b-form-input>
+                                <span class="errores">{{ errors.fecha_inicio }}</span>
+                            </b-form-group>
+
+                        </b-col>
+                        <b-col class="columns">
+
+                            <b-form-group label="Fecha Fin" label-for="fecha_fin">
+                                <b-form-input :disabled="!create" id="fecha_fin" v-model="form.fecha_fin" 
+                                    type="date"></b-form-input>
+                                <span class="errores">{{ errors.fecha_fin }}</span>
+                            </b-form-group>
+                        </b-col>
+                        
+                    </b-row>
+
+
+
+
+                    <b-button class="mt-5" type="submit" variant="success" style="width: 100%;">{{create == true ? 'Crear' : 'Actualizar'}}</b-button>
                 </b-form>
             </div>
         </b-container>
@@ -39,15 +56,19 @@ export default {
     data() {
         return {
             form: {
+                folio: '',
                 descripcion: '',
+                fecha_inicio: '',
+                fecha_fin: '',
                 
             },
             errors: {
+                folio: '',
                 descripcion: '',
-                selectedFiles: '',
+                fecha_inicio: '',
+                fecha_fin: '',
+                
             },
-            selectedFiles: [],
-            contadorArchivos: 1,
             selectedOptionCarrera: null,
             selectedOptionTipos: null,
 
@@ -84,57 +105,20 @@ export default {
         }
     },
     methods: {
-        addFile() {
-            if (this.contadorArchivos >= 3) {
-                this.$toast.error('Solo se pueden agregar 3 archivos');
-            }else{
-                
-                this.contadorArchivos++;
-            }
-        },
-        handleFileChange(event) {
-            this.selectedFiles = Array.from(event.target.files);
-        },
         closeModal() {
             this.showModal(false)
 
         },
-        enviarDocuementos() {
-            const formData = new FormData();
-            this.selectedFiles.forEach((file) => {
-                if (file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf')) {
-                    
-                    formData.append('documento', file);
-                    this.$axios.post('/servidorDocumentos', formData).then((response) => {
-                        console.log(response.data)
-                        if (response.data.status == 200) {
-                            this.envioUrl(response.data.data);
-                        } else {
-                            this.$toast.error('Error al subir archivos');
-                        }
-        
-                    })
-                }else{
-                    this.$toast.error('Solo se permiten archivos PDF');
-                }
-            });
-            
-        },
-        formatearFecha() {
-            const fechaUTC = new Date();
+        formatearFecha(fecha) {
+            const fechaUTC = new Date(fecha);
             const dia = fechaUTC.getUTCDate();
             const mes = fechaUTC.getUTCMonth() + 1; // Los meses en JavaScript se cuentan desde 0, por lo que se suma 1
             const anio = fechaUTC.getUTCFullYear();
             const fechaFormateada = `${anio}-${mes < 10 ? '0' : ''}${mes}-${dia < 10 ? '0' : ''}${dia}`;
             return fechaFormateada;
         },
-        envioUrl(data) {
-            this.form.fecha_inicio = this.formatearFecha();
-            this.form.fecha_fin = this.formatearFecha();
-            this.form.url = data.url;
-            this.form.nombre = data.nombre;
-            this.$axios.post('/solicitudes', this.form).then((response) => {
-                // console.log(response.data)
+        enviar() {
+            this.$axios.post('/lotes', this.form).then((response) => {
                 if (response.data.data.status == 400) {
                     this.$toast.error(response.data.data.message);
                 } else {
@@ -144,20 +128,21 @@ export default {
                     this.closeModal()
                 }
 
+            }).catch((error) => {
+                if (error.response.data.status == 400) {
+                    this.$toast.error(error.response.data.message);
+
+                }
+                console.log(error)
             })
         },
-        enviar() {
-            this.enviarDocuementos();
-            
-            
-        },
         update() {
-            this.$axios.put('/usuarios/' + this.id, this.form).then((response) => {
-                console.log(response.data)
+            this.$axios.put('/lotes/' + this.id, this.form).then((response) => {
+                 console.log(response.data)
                 if (response.data.data.status == 400) {
                     this.$toast.error('Error al actualizar');
                 } else {
-                    this.$toast.success('Usuario actualizado');
+                    this.$toast.success('Lote actualizado');
                     this.get()
                     this.closeModal()
                 }
@@ -165,41 +150,46 @@ export default {
             })
         },
         cleanForm() {
+            this.form.folio = '';
             this.form.descripcion = '';
-            this.selectedFiles = [];
-            this.contadorArchivos = 1;
+            this.form.fecha_inicio = '';
+            this.form.fecha_fin = '';
         },
         submitForm() {
             this.validateForm();
 
             if (Object.keys(this.errors).every((key) => !this.errors[key])) {
-
+                if (this.form.contrasena == this.form.repetir_contrasena) {
                     if (this.create == true) {
                         this.enviar();
                     } else {
                         this.update();
                     }
-                
+                } else {
+
+                    this.$toast.error('Las contraseñas no coinciden');
+                }
             } else {
                 this.$toast.error('Faltan datos en el formulario');
             }
         },
         validateForm() {
-           
-
-            this.errors.descripcion = this.form.descripcion ? '' : 'El campo descripcion es requerido';
-            this.errors.selectedFiles = this.selectedFiles.length > 0 ? '' : 'El campo archivo es requerido';
             
+                
+            this.errors.folio = this.form.folio ? '' : 'El campo folio es requerido';
+            this.errors.descripcion = this.form.descripcion ? '' : 'El campo Descripcion es requerido';
+            this.errors.fecha_inicio = this.form.fecha_inicio ? '' : 'El campo Carrera es requerido';
+            this.errors.fecha_fin = this.form.fecha_fin ? '' : 'El campo Correo Escolar es requerido';
             // console.log(this.errors, 'errors');
         },
         getUpdate() {
             if (this.create == false) {
                 this.cleanForm()
-                this.$axios.get('/usuarios/' + this.id).then((response) => {
-                    // console.log(this.carreras, 'update');
+                this.$axios.get('/lotes/' + this.id).then((response) => {
+                     console.log(response, 'update');
                     this.form = response.data.data[0];
-                    this.form.carreras_id = response.data.data[0].carreras_id;
-                    this.form.tipos_id = response.data.data[0].tipos_id;
+                    this.form.fecha_inicio = this.formatearFecha(this.form.fecha_inicio)
+                    this.form.fecha_fin = this.formatearFecha(this.form.fecha_fin)
                 })
             }
         }

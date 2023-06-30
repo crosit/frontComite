@@ -1,15 +1,19 @@
 <template>
     <div>
-        <div>
+        <div v-if="user.gefe_carrera == 1 || user.tipos_id <= 2">
 
             <base-header class="pb-6 pb-8 pt-5 pt-md-8 bg-gradient-success">
                 <!-- Card stats -->
                 <b-row>
-                    <b-col>
-                        <label for="">Nombre</label>
-                        <b-input v-model="inputValue" @input="handleInput"></b-input>
+                    <b-col cols="4">
+                        <label for="">Fecha Inicio</label>
+                        <b-form-input  @input="filtroFecha()"  type='date' v-model="fechaInicio" placeholder="Seleccionar fecha"></b-form-input>
                     </b-col>
-                    <b-col>
+                    <b-col cols="4">
+                        <label for="">Fecha Fin</label>
+                        <b-form-input @input="filtroFecha()"  type='date' v-model="fechaFin" placeholder="Seleccionar fecha"></b-form-input>
+                    </b-col>
+                    <!-- <b-col>
 
                         <label for="">Carreras</label>
                         <b-select class="" v-model="selectedOptionCarrera"
@@ -26,7 +30,7 @@
                             <option v-for="option in tipos" :value="option.id" :key="option.id">{{ option.descripcion }}
                             </option>
                         </b-select>
-                    </b-col>
+                    </b-col> -->
                     <b-col cols="1">
                         <label for=""> </label>
                         <br>
@@ -42,7 +46,7 @@
                 </div>
                 <b-card no-body class="bg-default shadow">
                     <b-card-header class=" border-0">
-                        <h3 class="mb-0">Usuarios</h3>
+                        <h3 class="mb-0">Lotes</h3>
                     </b-card-header>
 
                     <el-table class="table-responsive table " header-row-class-name="thead-light" :data="data">
@@ -55,29 +59,39 @@
                             </template>
                         </el-table-column>
 
-                        <el-table-column label="Nombre" min-width="260px" prop="nombre">
+                        <el-table-column label="Folio" min-width="260px" prop="folio">
                             <template v-slot="{ row }">
                                 <b-media no-body class="align-items-center">
 
-                                    <p>{{ row.nombre_full }}</p>
+                                    <p>{{ row.folio }}</p>
                                 </b-media>
                             </template>
                         </el-table-column>
 
-                        <el-table-column label="Descripcion" min-width="260px" prop="solicitud_descripcion">
+                        <el-table-column label="Descripcion" min-width="260px" prop="descripcion">
                             <template v-slot="{ row }">
                                 <b-media no-body class="align-items-center">
 
-                                    <p>{{ row.solicitud_descripcion }}</p>
+                                    <p>{{ row.descripcion }}</p>
                                 </b-media>
                             </template>
                         </el-table-column>
 
-                        <el-table-column label="Carreras" min-width="260px" prop="descripcion_carreras">
+
+                        <el-table-column label="Fecha Inicio" min-width="260px" prop="fecha_inicio">
                             <template v-slot="{ row }">
                                 <b-media no-body class="align-items-center">
 
-                                    <p>{{ row.descripcion_carreras }}</p>
+                                    <p>{{ formatearFecha(row.fecha_inicio) }}</p>
+                                </b-media>
+                            </template>
+                        </el-table-column>
+
+                        <el-table-column label="Fecha fin" min-width="260px" prop="fecha_fin">
+                            <template v-slot="{ row }">
+                                <b-media no-body class="align-items-center">
+
+                                    <p>{{ formatearFecha(row.fecha_fin) }}</p>
                                 </b-media>
                             </template>
                         </el-table-column>
@@ -137,12 +151,20 @@
                 </div>
             </b-modal> -->
         </div>
-        
+        <div v-else>
+            <b-container>
+                <base-header class="pb-6 pb-8 pt-5 pt-md-8 bg-gradient-success">
+                    <!-- Card stats -->
+
+                </base-header>
+                <h1 class="mt-5">Usted no tiene permisos para ver esta pagina</h1>
+            </b-container>
+        </div>
     </div>
 </template>
 <script>
 import { Table, TableColumn } from 'element-ui'
-import modal from './modalUsuarios.vue'
+import modal from './modalLotes.vue'
 export default {
     name: 'light-table',
     components: {
@@ -156,15 +178,15 @@ export default {
             create: null,
             currentPage: 1,
             data: null,
-            filtroCarrera: '',
             selectedOptionCarrera: null,
             selectedOptionTipos: null,
             inputValue: '',
+            fechaInicio: null,
+            fechaFin: null,
             timeoutId: null,
-            filtroLike: '',
-            filtroTipos: '',
             carreras: null,
             tipos: null,
+            filtroFechas: '',
             modalVisible: false,
             user: {
                 gefe_carrera: null,
@@ -174,13 +196,25 @@ export default {
     },
     methods: {
         clearFiltros() {
-            this.filtroCarrera = ''
-            this.filtroTipos = ''
-            this.filtroLike = ''
-            this.selectedOptionCarrera = null
-            this.selectedOptionTipos = null
-            this.inputValue = ''
+            this.fechaInicio = null
+            this.fechaFin = null    
+            this.filtroFechas = ''
             this.get()
+        },
+        filtroFecha() {
+            if (this.fechaInicio != null && this.fechaFin != null) {
+                this.filtroFechas = `fecha_inicio=${this.fechaInicio}&&fecha_fin=${this.fechaFin}`
+                this.get()
+            }
+           
+        },
+        formatearFecha(fecha) {
+            const fechaUTC = new Date(fecha);
+            const dia = fechaUTC.getUTCDate();
+            const mes = fechaUTC.getUTCMonth() + 1; // Los meses en JavaScript se cuentan desde 0, por lo que se suma 1
+            const anio = fechaUTC.getUTCFullYear();
+            const fechaFormateada = `${dia < 10 ? '0' : ''}${dia}-${mes < 10 ? '0' : ''}${mes}-${anio}`;
+            return fechaFormateada;
         },
         handleInput() {
             // Reiniciar el temporizador si ya estaba en marcha
@@ -202,14 +236,14 @@ export default {
         },
        
         deleted(id) {
-            this.$axios.delete('/Solicitudes/' + id).then((response) => {
+            this.$axios.delete('/lotes/' + id).then((response) => {
                 // console.log(response.data)
                 this.get()
             })
         },
         get() {
-            this.$axios.get('/Solicitudes?').then((response) => {
-                console.log(response.data , 'solicitudes')
+            this.$axios.get('/lotes?'+this.filtroFechas ).then((response) => {
+                // console.log(response.data)
                 
                 this.data = response.data.data
             }).catch((error) => {
@@ -220,26 +254,14 @@ export default {
         getpermisos() {
             this.user = JSON.parse(localStorage.getItem('user'))
         },
-        getCarreras() {
-            this.$axios.get('/carreras').then((response) => {
-                // console.log(response.data, 'carreras')
-                this.carreras = response.data.data
-            })
-        },
-        getTipos() {
-            this.$axios.get('/tipos').then((response) => {
-                // console.log(response.data, 'tipos')
-                this.tipos = response.data.data
-            })
-        },
+        
 
 
     },
     mounted() {
         this.getpermisos()
         this.get()
-        this.getCarreras()
-        this.getTipos()
+       
     }
 }
 </script>

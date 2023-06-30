@@ -64,11 +64,20 @@
                             </template>
                         </el-table-column>
 
-                        <el-table-column label="Nombre" min-width="260px" prop="nombre">
+                        <el-table-column label="Carrera" min-width="260px" prop="carrera">
                             <template v-slot="{ row }">
                                 <b-media no-body class="align-items-center">
 
-                                    <p>{{ row.nombre }} {{ row.apellido_p }} {{ row.apellido_m }}</p>
+                                    <p>{{ row.carrera_descripcion }}</p>
+                                </b-media>
+                            </template>
+                        </el-table-column>
+
+                        <el-table-column label="Tipo" min-width="260px" prop="tipo">
+                            <template v-slot="{ row }">
+                                <b-media no-body class="align-items-center">
+
+                                    <p>{{ row.tipo_descripcion }}</p>
                                 </b-media>
                             </template>
                         </el-table-column>

@@ -53,11 +53,17 @@ const routes = [
         component: () => import(/* webpackChunkName: "demo" */ '../views/status/status.vue')
       },
       {
-        path: '/solicitudes',
-        name: 'solicitudes',
+        path: '/lotes',
+        name: 'lotes',
         meta: {
           requiresAuth: true
         },
+        component: () => import(/* webpackChunkName: "demo" */ '../views/lotes/lotes.vue')
+      },
+      {
+        path: '/solicitudes',
+        name: 'solicitudes',
+        
         component: () => import(/* webpackChunkName: "demo" */ '../views/solicitudes/solicitudes.vue')
       },
       {

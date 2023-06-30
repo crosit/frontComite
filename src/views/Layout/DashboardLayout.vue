@@ -56,6 +56,14 @@
         >
         </sidebar-item>
         <sidebar-item
+          :link="{
+            name: 'Lotes',
+            path: '/lotes',
+            icon: 'ni ni-books text-primary',
+          }"
+        >
+        </sidebar-item>
+        <sidebar-item
             :link="{
               name: 'Icons',
               path: '/icons',
