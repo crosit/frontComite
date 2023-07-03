@@ -22,7 +22,6 @@
 
                             <b-form-group label="Apellido Materno" label-for="apellido_m">
                                 <b-form-input id="apellido_m" v-model="form.apellido_m"></b-form-input>
-                                <span class="errores">{{ errors.apellido_m }}</span>
                             </b-form-group>
                         </b-col>
                     </b-row>
@@ -138,7 +137,7 @@ export default {
                 contrasena: '',
                 repetir_contrasena: '',
                 tipos_id: '',
-                gefe_carrera: 0
+                gefe_carrera: false
             },
             errors: {
                 nombre: '',
@@ -191,6 +190,13 @@ export default {
 
         },
         enviar() {
+            // console.log(this.form, 'form');
+            // console.log(this.form.gefe_carrera, 'form.gefe_carrera');
+            if (this.form.gefe_carrera == true) {
+                this.form.gefe_carrera = 1;
+            }else{
+                this.form.gefe_carrera = 0;
+            }
             this.$axios.post('/usuarios', this.form).then((response) => {
                 // console.log(response.data)
                 if (response.data.data.status == 400) {
@@ -206,7 +212,7 @@ export default {
         },
         update() {
             this.$axios.put('/usuarios/' + this.id, this.form).then((response) => {
-                 console.log(response.data)
+                //  console.log(response.data)
                 if (response.data.data.status == 400) {
                     this.$toast.error('Error al actualizar');
                 } else {
@@ -228,7 +234,7 @@ export default {
             this.form.contrasena = '';
             this.form.repetir_contrasena = '';
             this.form.tipos_id = '';
-            this.form.gefe_carrera = 0;
+            this.form.gefe_carrera = false;
         },
         submitForm() {
             this.validateForm();

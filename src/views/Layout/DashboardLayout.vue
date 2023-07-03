@@ -17,7 +17,7 @@
             path: '/carreras',
             icon: 'ni ni-books text-primary',
           }"
-          v-if="user.gefe_carrera == 1 || user.tipos_id <=2"
+          v-if="user.tipos_id ==1"
         >
         </sidebar-item>
         <sidebar-item
@@ -26,7 +26,7 @@
             path: '/tipos',
             icon: 'ni ni-books text-primary',
           }"
-          v-if="user.gefe_carrera == 1 || user.tipos_id <=2"
+          v-if="user.tipos_id ==1"
         >
         </sidebar-item>
         <sidebar-item
@@ -35,7 +35,7 @@
             path: '/usuarios',
             icon: 'ni ni-books text-primary',
           }"
-          v-if="user.gefe_carrera == 1 || user.tipos_id <=2"
+          v-if="user.tipos_id ==1"
         >
         </sidebar-item>
         <sidebar-item
@@ -44,7 +44,7 @@
             path: '/status',
             icon: 'ni ni-books text-primary',
           }"
-          v-if="user.gefe_carrera == 1 || user.tipos_id <=2"
+          v-if="user.tipos_id ==1"
         >
         </sidebar-item>
         <sidebar-item
@@ -61,16 +61,17 @@
             path: '/lotes',
             icon: 'ni ni-books text-primary',
           }"
+          v-if="user.tipos_id ==1"
         >
         </sidebar-item>
-        <sidebar-item
+        <!-- <sidebar-item
             :link="{
               name: 'Icons',
               path: '/icons',
               icon: 'ni ni-planet text-blue'
               }"
             >
-        </sidebar-item>
+        </sidebar-item> -->
 
         <!-- <sidebar-item
               :link="{
@@ -88,13 +89,13 @@
                 }">
         </sidebar-item> -->
 
-        <sidebar-item
+        <!-- <sidebar-item
                 :link="{
                   name: 'Tables',
                   path: '/tables',
                   icon: 'ni ni-bullet-list-67 text-red'
                 }">
-        </sidebar-item>
+        </sidebar-item> -->
 
         <!-- <sidebar-item
                   :link="{
@@ -103,13 +104,13 @@
                     icon: 'ni ni-key-25 text-info'
                   }">
         </sidebar-item> -->
-        <sidebar-item
+        <!-- <sidebar-item
                   :link="{
                     name: 'Register',
                     path: '/register',
                     icon: 'ni ni-circle-08 text-pink'
                   }">
-        </sidebar-item>
+        </sidebar-item> -->
       </template>
 
       <!-- <template slot="links-after">

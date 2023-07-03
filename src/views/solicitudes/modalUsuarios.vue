@@ -1,5 +1,5 @@
 <template>
-    <b-modal size="xl" v-model="modalVisible" hide-footer title="Usuarios" @hidden="closeModal">
+    <b-modal size="xl" v-model="modalVisible" hide-footer title="Solicitudes" @hidden="closeModal">
         <b-container>
             <div>
                 <b-form @submit.prevent="submitForm">
@@ -81,6 +81,10 @@ export default {
         id: {
             type: Number,
             default: 0
+        },
+        rowSelected: {
+            type: Object,
+            
         }
     },
     methods: {
@@ -93,22 +97,23 @@ export default {
             }
         },
         handleFileChange(event) {
-            this.selectedFiles = Array.from(event.target.files);
+            // this.selectedFiles = Array.from(event.target.files);
         },
         closeModal() {
             this.showModal(false)
 
         },
-        enviarDocuementos() {
+        async enviarDocuementos() {
             const formData = new FormData();
-            this.selectedFiles.forEach((file) => {
+            console.log(this.selectedFiles, 'selectedFiles');
+            this.selectedFiles.forEach(async (file) => {
                 if (file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf')) {
-                    
+                    console.log(file, 'file');
                     formData.append('documento', file);
-                    this.$axios.post('/servidorDocumentos', formData).then((response) => {
+                    await this.$axios.post('/servidorDocumentos', formData).then(async (response) => {
                         console.log(response.data)
                         if (response.data.status == 200) {
-                            this.envioUrl(response.data.data);
+                            await this.envioUrl(response.data.data);
                         } else {
                             this.$toast.error('Error al subir archivos');
                         }
@@ -128,21 +133,16 @@ export default {
             const fechaFormateada = `${anio}-${mes < 10 ? '0' : ''}${mes}-${dia < 10 ? '0' : ''}${dia}`;
             return fechaFormateada;
         },
-        envioUrl(data) {
+        async envioUrl(data) {
             this.form.fecha_inicio = this.formatearFecha();
             this.form.fecha_fin = this.formatearFecha();
             this.form.url = data.url;
             this.form.nombre = data.nombre;
-            this.$axios.post('/solicitudes', this.form).then((response) => {
+            await this.$axios.post('/solicitudes', this.form).then((response) => {
                 // console.log(response.data)
-                if (response.data.data.status == 400) {
+                if (response.data.status == 400) {
                     this.$toast.error(response.data.data.message);
-                } else {
-                    this.$toast.success(response.data.data.message);
-                    this.get()
-                    this.cleanForm()
-                    this.closeModal()
-                }
+                } 
 
             })
         },
@@ -152,7 +152,7 @@ export default {
             
         },
         update() {
-            this.$axios.put('/usuarios/' + this.id, this.form).then((response) => {
+            this.$axios.put('/Solicitudes/' + this.id, this.form).then((response) => {
                 console.log(response.data)
                 if (response.data.data.status == 400) {
                     this.$toast.error('Error al actualizar');
@@ -195,11 +195,10 @@ export default {
         getUpdate() {
             if (this.create == false) {
                 this.cleanForm()
-                this.$axios.get('/usuarios/' + this.id).then((response) => {
-                    // console.log(this.carreras, 'update');
+                this.$axios.get('/Solicitudes/' + this.rowSelected.solicitudes_usuarios_id).then((response) => {
+                    console.log(this.carreras, 'update');
                     this.form = response.data.data[0];
-                    this.form.carreras_id = response.data.data[0].carreras_id;
-                    this.form.tipos_id = response.data.data[0].tipos_id;
+                    
                 })
             }
         }

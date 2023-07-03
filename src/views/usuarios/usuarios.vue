@@ -213,6 +213,9 @@ export default {
             this.$axios.delete('/usuarios/' + id).then((response) => {
                 // console.log(response.data)
                 this.get()
+            }).catch((error) => {
+                error.response.status == 401 ?  this.$router.push('/page-401') :
+                console.log(error, 'error')
             })
         },
         get() {
@@ -232,12 +235,18 @@ export default {
             this.$axios.get('/carreras').then((response) => {
                 // console.log(response.data, 'carreras')
                 this.carreras = response.data.data
+            }).catch((error) => {
+                error.response.status == 401 ?  this.$router.push('/page-401') :
+                console.log(error, 'error')
             })
         },
         getTipos() {
             this.$axios.get('/tipos').then((response) => {
                 // console.log(response.data, 'tipos')
                 this.tipos = response.data.data
+            }).catch((error) => {
+                error.response.status == 401 ?  this.$router.push('/page-401') :
+                console.log(error, 'error')
             })
         },
 

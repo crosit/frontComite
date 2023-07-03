@@ -4,12 +4,12 @@
 
             <base-header class="pb-6 pb-8 pt-5 pt-md-8 bg-gradient-success">
                 <!-- Card stats -->
-                <b-row>
+                <b-row v-if="user.gefe_carrera == 1 || user.tipos_id <= 2">
                     <b-col>
                         <label for="">Nombre</label>
                         <b-input v-model="inputValue" @input="handleInput"></b-input>
                     </b-col>
-                    <b-col>
+                    <!-- <b-col>
 
                         <label for="">Carreras</label>
                         <b-select class="" v-model="selectedOptionCarrera"
@@ -26,7 +26,7 @@
                             <option v-for="option in tipos" :value="option.id" :key="option.id">{{ option.descripcion }}
                             </option>
                         </b-select>
-                    </b-col>
+                    </b-col> -->
                     <b-col cols="1">
                         <label for=""> </label>
                         <br>
@@ -37,8 +37,8 @@
             <b-container fluid class="mt--7">
                 <div class="d-flex justify-content-end mb-4 mr-3">
 
-                    <b-button @click="showModal(true); create = true" variant="primary"> <b-icon icon="plus-circle"
-                            aria-hidden="true"></b-icon> Add</b-button>
+                    <b-button v-if="user.tipos_id == 3" @click="showModal(true); create = true" variant="primary"> <b-icon
+                            icon="plus-circle" aria-hidden="true"></b-icon> Add</b-button>
                 </div>
                 <b-card no-body class="bg-default shadow">
                     <b-card-header class=" border-0">
@@ -55,7 +55,7 @@
                             </template>
                         </el-table-column>
 
-                        <el-table-column label="Nombre" min-width="260px" prop="nombre">
+                        <el-table-column label="Nombre" min-width="220px" prop="nombre">
                             <template v-slot="{ row }">
                                 <b-media no-body class="align-items-center">
 
@@ -64,7 +64,7 @@
                             </template>
                         </el-table-column>
 
-                        <el-table-column label="Descripcion" min-width="260px" prop="solicitud_descripcion">
+                        <el-table-column label="Descripcion" min-width="240px" prop="solicitud_descripcion">
                             <template v-slot="{ row }">
                                 <b-media no-body class="align-items-center">
 
@@ -73,7 +73,7 @@
                             </template>
                         </el-table-column>
 
-                        <el-table-column label="Carreras" min-width="260px" prop="descripcion_carreras">
+                        <el-table-column label="Carreras" min-width="269px" prop="descripcion_carreras">
                             <template v-slot="{ row }">
                                 <b-media no-body class="align-items-center">
 
@@ -82,20 +82,35 @@
                             </template>
                         </el-table-column>
 
+                        <el-table-column label="Estatus" min-width="140px" prop="descripcion_estatus">
+                            <template v-slot="{ row }">
+                                <b-media no-body class="align-items-center">
+
+                                    <p>{{ row.descripcion_estatus }}</p>
+                                </b-media>
+                            </template>
+                        </el-table-column>
+
 
                         <el-table-column label="Actions" min-width="110px" prop="nombre">
                             <template v-slot="{ row }">
-                                <b-media no-body class="align-items-center">
+                                <b-media no-body class="d-flex justify-content-center">
                                     <b-row>
-                                        <b-col>
+                                        <b-col v-if="user.tipos_id == 3">
 
                                             <b-icon
-                                                @click="modalVisible = true; create = false; usuario.id = row.id"
+                                                @click="modalVisible = true; create = false; usuario.id = row.id; rowSelected = row;"
+                                                v-b-tooltip.hover title="update" class="update-button"
+                                                icon="box-arrow-in-down-left" variant="primary" aria-hidden="true"></b-icon>
+                                        </b-col>
+                                        <b-col v-else>
+                                            <b-icon
+                                                @click="modalVisibleInfo = true; create = false; usuario.id = row.id; rowSelected = row;"
                                                 v-b-tooltip.hover title="update" class="update-button"
                                                 icon="box-arrow-in-down-left" variant="primary" aria-hidden="true"></b-icon>
                                         </b-col>
 
-                                        <b-col>
+                                        <b-col v-if="user.tipos_id == 3">
                                             <b-icon v-b-tooltip.hover title="delete" class="delete-button"
                                                 @click="deleted(row.id)" icon="trash" variant="danger"
                                                 aria-hidden="true"></b-icon>
@@ -114,17 +129,13 @@
             </b-container>
 
 
-            <modal 
-                :modalVisible="modalVisible" 
-                :carreras="carreras" 
-                :tipos="tipos"  
-                :get="get" 
-                :showModal="showModal" 
-                :create="create"
-                :id="usuario.id"
-                hide-footer title="Agregar Carrera"
-                >
+            <modal :modalVisible="modalVisible" :carreras="carreras" :tipos="tipos" :get="get" :showModal="showModal"
+                :rowSelected="rowSelected" :create="create" :id="usuario.id" hide-footer title="Agregar Carrera">
             </modal>
+            <modalInfo :usuario="user" :modalVisibleInfo="modalVisibleInfo" :carreras="carreras" :tipos="tipos" :get="get"
+                :showModalInfo="showModalInfo" :rowSelected="rowSelected" :create="create" :id="usuario.id" hide-footer
+                title="Agregar Carrera">
+            </modalInfo>
             <!-- <b-modal v-model="modalVisible" hide-footer title="Agregar Carrera">
                 <div>
                     <label for="descripcion">Descripción:</label>
@@ -137,18 +148,20 @@
                 </div>
             </b-modal> -->
         </div>
-        
+
     </div>
 </template>
 <script>
 import { Table, TableColumn } from 'element-ui'
 import modal from './modalUsuarios.vue'
+import modalInfo from './modalInfoSolicitudes.vue'
 export default {
     name: 'light-table',
     components: {
         [Table.name]: Table,
         [TableColumn.name]: TableColumn,
-        modal
+        modal,
+        modalInfo
     },
     data() {
         return {
@@ -158,8 +171,10 @@ export default {
             data: null,
             filtroCarrera: '',
             selectedOptionCarrera: null,
+            rowSelected: null,
             selectedOptionTipos: null,
             inputValue: '',
+            modalVisibleInfo: false,
             timeoutId: null,
             filtroLike: '',
             filtroTipos: '',
@@ -188,7 +203,7 @@ export default {
             // console.log(this.inputValue, 'inputValue');
             if (this.inputValue == ' ') {
                 this.filtroLike = ''
-            }else{
+            } else {
 
                 this.filtroLike = `like=${this.inputValue}&`
             }
@@ -200,7 +215,10 @@ export default {
         showModal(value) {
             this.modalVisible = value
         },
-       
+        showModalInfo(value) {
+            this.modalVisibleInfo = value
+        },
+
         deleted(id) {
             this.$axios.delete('/Solicitudes/' + id).then((response) => {
                 // console.log(response.data)
@@ -209,12 +227,12 @@ export default {
         },
         get() {
             this.$axios.get('/Solicitudes?').then((response) => {
-                console.log(response.data , 'solicitudes')
-                
+                console.log(response.data, 'solicitudes')
+
                 this.data = response.data.data
             }).catch((error) => {
-                error.response.status == 401 ?  this.$router.push('/page-401') :
-                console.log(error, 'error')
+                error.response.status == 401 ? this.$router.push('/page-401') :
+                    console.log(error, 'error')
             })
         },
         getpermisos() {
@@ -232,14 +250,22 @@ export default {
                 this.tipos = response.data.data
             })
         },
+        formatearFecha(fecha) {
+            const fechaUTC = new Date(fecha);
+            const dia = fechaUTC.getUTCDate();
+            const mes = fechaUTC.getUTCMonth() + 1; // Los meses en JavaScript se cuentan desde 0, por lo que se suma 1
+            const anio = fechaUTC.getUTCFullYear();
+            const fechaFormateada = `${dia < 10 ? '0' : ''}${dia}-${mes < 10 ? '0' : ''}${mes}-${anio}`;
+            return fechaFormateada;
+        },
 
 
     },
     mounted() {
         this.getpermisos()
         this.get()
-        this.getCarreras()
-        this.getTipos()
+        // this.getCarreras()
+        // this.getTipos()
     }
 }
 </script>
@@ -265,7 +291,8 @@ export default {
 :hover .update-button {
     cursor: pointer;
 
-}</style>
+}
+</style>
 
 
 
