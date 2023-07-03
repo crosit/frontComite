@@ -9,16 +9,31 @@
                         <label for="">Nombre</label>
                         <b-input v-model="inputValue" @input="handleInput"></b-input>
                     </b-col>
-                    <!-- <b-col>
-
+                    <b-col>
                         <label for="">Carreras</label>
                         <b-select class="" v-model="selectedOptionCarrera"
-                            @change="filtroCarrera = `carreras_id = ${selectedOptionCarrera}&`; get()">
+                            @change="filtroCarrera = `carreras_id=${selectedOptionCarrera}&`; get()">
                             <option v-for="option in carreras" :value="option.id" :key="option.id">{{ option.descripcion }}
                             </option>
                         </b-select>
                     </b-col>
                     <b-col>
+                        <label for="">Lotes</label>
+                        <b-select class="" v-model="selectedOptionLotes"
+                            @change="filtroLotes = `lotes_id=${selectedOptionLotes}&`; get()">
+                            <option v-for="option in lotes" :value="option.id" :key="option.id">{{ option.descripcion }}
+                            </option>
+                        </b-select>
+                    </b-col>
+                    <b-col>
+                        <label for="">Estaus</label>
+                        <b-select class="" v-model="selectedOptionEstatus"
+                            @change="filtroEstatus = `estatus_id=${selectedOptionEstatus}&`; get()">
+                            <option v-for="option in estatus" :value="option.id" :key="option.id">{{ option.descripcion }}
+                            </option>
+                        </b-select>
+                    </b-col>
+                    <!-- <b-col>
 
                         <label for="">Tipos</label>
                         <b-select class="" v-model="selectedOptionTipos"
@@ -26,7 +41,7 @@
                             <option v-for="option in tipos" :value="option.id" :key="option.id">{{ option.descripcion }}
                             </option>
                         </b-select>
-                    </b-col> -->
+                    </b-col>  -->
                     <b-col cols="1">
                         <label for=""> </label>
                         <br>
@@ -177,6 +192,13 @@ export default {
             modalVisibleInfo: false,
             timeoutId: null,
             filtroLike: '',
+            selectedOptionLotes: null,
+            selectedOptionEstatus: null,
+            lotes: null,
+            estatus: null,
+            filtroLotes: '',
+            filtroEstatus: '',
+
             filtroTipos: '',
             carreras: null,
             tipos: null,
@@ -194,7 +216,6 @@ export default {
             this.filtroLike = ''
             this.selectedOptionCarrera = null
             this.selectedOptionTipos = null
-            this.inputValue = ''
             this.get()
         },
         handleInput() {
@@ -226,7 +247,7 @@ export default {
             })
         },
         get() {
-            this.$axios.get('/Solicitudes?').then((response) => {
+            this.$axios.get('/Solicitudes?'+ this.filtroLike + this.filtroCarrera + this.filtroLotes + this.filtroEstatus).then((response) => {
                 console.log(response.data, 'solicitudes')
 
                 this.data = response.data.data
@@ -258,14 +279,31 @@ export default {
             const fechaFormateada = `${dia < 10 ? '0' : ''}${dia}-${mes < 10 ? '0' : ''}${mes}-${anio}`;
             return fechaFormateada;
         },
+        getLotes() {
+            this.$axios.get('/lotes').then((response) => {
+                // console.log(response.data, 'lotes')
+                this.lotes = response.data.data
+            })
+        },
+        getEstatus() {
+            this.$axios.get('/estatus').then((response) => {
+                // console.log(response.data, 'estatus')
+                this.estatus = response.data.data
+            })
+        },
+        
 
 
     },
     mounted() {
         this.getpermisos()
         this.get()
-        // this.getCarreras()
-        // this.getTipos()
+        if (this.user.tipos_id != 3) {
+
+            this.getCarreras()
+            this.getLotes()
+            this.getEstatus()
+        }
     }
 }
 </script>
