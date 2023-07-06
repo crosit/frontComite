@@ -47,16 +47,24 @@
                     <div v-if="form.estatus_id == 2 && usuario.tipos_id == 2 && usuario.gefe_carrera == 0">
 
                         <label for="">Comentario del Comite</label>
-                        <b-form-textarea v-model="form.comentario_comite"
-                            placeholder="Ingrese un comentario"></b-form-textarea>
-                        <p class="errores" v-if="form.comentario_comite == null">Campo Obligatorio</p>
+                        <b-form-textarea v-model="comentario_comite" placeholder="Ingrese un comentario"></b-form-textarea>
+                        <p class="errores" v-if="comentario_comite == null">Campo Obligatorio</p>
                     </div>
                     <div v-if="form.estatus_id == 3 && usuario.tipos_id == 1 && usuario.gefe_carrera == 0">
 
                         <label for="">Comentarios del Comite</label>
                         <p>{{ form.solicitudes_comentario }}</p>
                     </div>
-                    <br>
+                    <div>
+
+                        <br>
+                        <div v-if="form.estatus_id == 5 && usuario.tipos_id <= 2 ">
+                            
+                            <label for="">Veredicto final</label>
+                            <p :style="form.veredicto == 'Aceptado' ? 'color:green;' : 'color:red;'">{{ form.veredicto }}</p>
+                        </div>
+                        <br>
+                    </div>
                     <div class="d-flex justify-content-center" v-if="form.estatus_id == 1 && usuario.gefe_carrera == 1">
 
                         <b-row>
@@ -64,7 +72,7 @@
                                 <b-button @click="aceptadoParaComite()" variant="success">Aceptar</b-button>
                             </b-col>
                             <b-col>
-                                <b-button @click="rechazadoParaComite()" variant="danger">Rechazar</b-button>
+                                <b-button @click="form.veredicto = 'Rechazado';rechazadoParaComite()" variant="danger">Rechazar</b-button>
                             </b-col>
                         </b-row>
                     </div>
@@ -76,7 +84,7 @@
                                 <b-button @click="aceptadoParaAdministracion()" variant="success">Aceptar</b-button>
                             </b-col>
                             <b-col>
-                                <b-button @click="rechazadoParaComite()" variant="danger">Rechazar</b-button>
+                                <b-button @click="form.veredicto = 'Rechazado';rechazadoParaComite()" variant="danger">Rechazar</b-button>
                             </b-col>
                         </b-row>
                     </div>
@@ -85,10 +93,10 @@
 
                         <b-row>
                             <b-col>
-                                <b-button @click="aceptadoParaFinalizar()" variant="success">Aceptar</b-button>
+                                <b-button @click="form.veredicto = 'Aceptado';aceptadoParaFinalizar()" variant="success">Aceptar</b-button>
                             </b-col>
                             <b-col>
-                                <b-button @click="rechazadoParaComite()" variant="danger">Rechazar</b-button>
+                                <b-button @click="form.veredicto = 'Rechazado';rechazadoParaComite()" variant="danger">Rechazar</b-button>
                             </b-col>
                         </b-row>
                     </div>
@@ -133,9 +141,11 @@ export default {
                 solicitudes_usuarios_id: '',
                 descripcion_estatus: '',
                 solicitudes_createdAt: '',
-                comentario_comite: null,
+                veredicto: '',
+
             },
             solicitudes: [],
+            comentario_comite: null,
             selectedFiles: [],
             contadorArchivos: 1,
             selectedOptionCarrera: null,
@@ -183,6 +193,14 @@ export default {
     },
     methods: {
         aceptadoParaAdministracion() {
+            if (this.form.estatus_id == 2 && this.usuario.tipos_id == 2 && this.usuario.gefe_carrera == 0) {
+
+                if (this.comentario_comite == null) {
+                    this.$toast.error('Ingrese un comentario');
+                    return;
+                }
+            }
+            this.form.comentario_comite = this.comentario_comite;
             this.$axios.post('/solicitudes/aceptadoAdministracion', this.form).then((response) => {
                 console.log(response.data)
                 if (response.data.status == 400) {
@@ -196,13 +214,8 @@ export default {
             })
         },
         aceptadoParaComite() {
-            if (this.form.estatus_id == 2 && this.usuario.tipos_id == 2 && this.usuario.gefe_carrera == 0) {
 
-                if (this.form.comentario_comite == null) {
-                    this.$toast.error('Ingrese un comentario');
-                    return;
-                }
-            }
+            console.log(this.form, 'form');
             this.$axios.post('/solicitudes/aceptadoComite', this.form).then((response) => {
                 console.log(response.data)
                 if (response.data.status == 400) {
@@ -211,6 +224,7 @@ export default {
                     this.$toast.success('Solicitud aceptada');
                     this.get()
                     this.closeModal()
+                    this.$router.push({ path: this.$route.path })
                 }
 
             })
@@ -222,6 +236,7 @@ export default {
             }
             this.form.correo = correo;
             this.form.estado = 1;
+            
             this.$axios.post('/solicitudes/aceptadoFinalizar', this.form).then((response) => {
                 console.log(response.data)
                 if (response.data.status == 400) {
@@ -230,6 +245,7 @@ export default {
                     this.$toast.success('Solicitud aceptada');
                     this.get()
                     this.closeModal()
+                    this.$router.push({ path: this.$route.path })
                 }
 
             })
@@ -249,6 +265,7 @@ export default {
                     this.$toast.success('Solicitud rechazada');
                     this.get()
                     this.closeModal()
+                    this.$router.push({ path: this.$route.path })
                 }
 
             })
@@ -438,4 +455,5 @@ export default {
 .columns {
     min-width: 300px;
     padding-bottom: 0;
-}</style>
+}
+</style>

@@ -18,14 +18,15 @@
                         <b-button @click="addFile()" variant="primary">+ Archivo</b-button>
                     </div>
                     <b-row v-for="item in contadorArchivos" :key="item">
-                        <b-col >
-                            <b-form-file class="mb-5" v-model="selectedFiles[item -1]" @change="handleFileChange"></b-form-file>
+                        <b-col>
+                            <b-form-file class="mb-5" v-model="selectedFiles[item - 1]"
+                                @change="handleFileChange"></b-form-file>
                             <span class="errores">{{ errors.selectedFiles }}</span>
                         </b-col>
                     </b-row>
 
 
-                    <b-button  class="mt-5" type="submit" variant="success" style="width: 100%;">{{ create == true ? 'Crear'
+                    <b-button class="mt-5" type="submit" variant="success" style="width: 100%;">{{ create == true ? 'Crear'
                         :
                         'Actualizar' }}</b-button>
                 </b-form>
@@ -40,7 +41,7 @@ export default {
         return {
             form: {
                 descripcion: '',
-                
+
             },
             errors: {
                 descripcion: '',
@@ -50,6 +51,7 @@ export default {
             contadorArchivos: 1,
             selectedOptionCarrera: null,
             selectedOptionTipos: null,
+            arrayDocumentos: [],
 
 
         }
@@ -84,15 +86,15 @@ export default {
         },
         rowSelected: {
             type: Object,
-            
+
         }
     },
     methods: {
         addFile() {
             if (this.contadorArchivos >= 3) {
                 this.$toast.error('Solo se pueden agregar 3 archivos');
-            }else{
-                
+            } else {
+
                 this.contadorArchivos++;
             }
         },
@@ -105,25 +107,31 @@ export default {
         },
         async enviarDocuementos() {
             const formData = new FormData();
-            console.log(this.selectedFiles, 'selectedFiles');
-            this.selectedFiles.forEach(async (file) => {
+            // console.log(this.selectedFiles, 'selectedFiles');
+            for (let i = 0; i < this.selectedFiles.length; i++) {
+                let file = this.selectedFiles[i];
+            
                 if (file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf')) {
-                    console.log(file, 'file');
+                    // console.log(file, 'file');
+                    formData.delete('documento');
                     formData.append('documento', file);
                     await this.$axios.post('/servidorDocumentos', formData).then(async (response) => {
-                        console.log(response.data)
+                        // console.log(response.data)
                         if (response.data.status == 200) {
-                            await this.envioUrl(response.data.data);
+                            this.arrayDocumentos.push(response.data.data);
+                            console.log(this.arrayDocumentos, 'arrayDocumentos');
                         } else {
                             this.$toast.error('Error al subir archivos');
                         }
-        
+
                     })
-                }else{
+                } else {
                     this.$toast.error('Solo se permiten archivos PDF');
                 }
-            });
+            }
             
+            await this.envioUrl();
+
         },
         formatearFecha() {
             const fechaUTC = new Date();
@@ -133,27 +141,33 @@ export default {
             const fechaFormateada = `${anio}-${mes < 10 ? '0' : ''}${mes}-${dia < 10 ? '0' : ''}${dia}`;
             return fechaFormateada;
         },
-        async envioUrl(data) {
+        async envioUrl() {
             this.form.fecha_inicio = this.formatearFecha();
             this.form.fecha_fin = this.formatearFecha();
-            this.form.url = data.url;
-            this.form.nombre = data.nombre;
+            this.form.arrayDocumentos = this.arrayDocumentos;
+            console.log(this.form, 'form');
             await this.$axios.post('/solicitudes', this.form).then((response) => {
                 // console.log(response.data)
-                if (response.data.status == 400) {
+                if (response.data.data.status == 400) {
                     this.$toast.error(response.data.data.message);
-                } 
+                }
+                else {
+                    this.$toast.success(response.data.message);
+                    this.get()
+                    this.closeModal()
+                }
 
             })
+            this.arrayDocumentos = [];
         },
         enviar() {
             this.enviarDocuementos();
-            
-            
+
+
         },
         update() {
             this.$axios.put('/Solicitudes/' + this.id, this.form).then((response) => {
-                console.log(response.data)
+                // console.log(response.data)
                 if (response.data.data.status == 400) {
                     this.$toast.error('Error al actualizar');
                 } else {
@@ -174,31 +188,31 @@ export default {
 
             if (Object.keys(this.errors).every((key) => !this.errors[key])) {
 
-                    if (this.create == true) {
-                        this.enviar();
-                    } else {
-                        this.update();
-                    }
-                
+                if (this.create == true) {
+                    this.enviar();
+                } else {
+                    this.update();
+                }
+
             } else {
                 this.$toast.error('Faltan datos en el formulario');
             }
         },
         validateForm() {
-           
+
 
             this.errors.descripcion = this.form.descripcion ? '' : 'El campo descripcion es requerido';
             this.errors.selectedFiles = this.selectedFiles.length > 0 ? '' : 'El campo archivo es requerido';
-            
+
             // console.log(this.errors, 'errors');
         },
         getUpdate() {
             if (this.create == false) {
                 this.cleanForm()
                 this.$axios.get('/Solicitudes/' + this.rowSelected.solicitudes_usuarios_id).then((response) => {
-                    console.log(this.carreras, 'update');
+                    // console.log(this.carreras, 'update');
                     this.form = response.data.data[0];
-                    
+
                 })
             }
         }

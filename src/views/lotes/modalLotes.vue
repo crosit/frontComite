@@ -25,7 +25,7 @@
                         <b-col class="columns">
 
                             <b-form-group label="Fecha Inicio" label-for="fecha_inicio">
-                                <b-form-input :disabled="!create" id="fecha_inicio" type="date" v-model="form.fecha_inicio"></b-form-input>
+                                <b-form-input :disabled="!create" id="fecha_inicio" type="date" :min="minFecha" v-model="form.fecha_inicio"></b-form-input>
                                 <span class="errores">{{ errors.fecha_inicio }}</span>
                             </b-form-group>
 
@@ -33,7 +33,7 @@
                         <b-col class="columns">
 
                             <b-form-group label="Fecha Fin" label-for="fecha_fin">
-                                <b-form-input :disabled="!create" id="fecha_fin" v-model="form.fecha_fin" 
+                                <b-form-input :disabled="!create" id="fecha_fin" :min="minFecha" v-model="form.fecha_fin" 
                                     type="date"></b-form-input>
                                 <span class="errores">{{ errors.fecha_fin }}</span>
                             </b-form-group>
@@ -69,6 +69,7 @@ export default {
                 fecha_fin: '',
                 
             },
+            minFecha: this.formatearFecha(new Date()),
             selectedOptionCarrera: null,
             selectedOptionTipos: null,
 

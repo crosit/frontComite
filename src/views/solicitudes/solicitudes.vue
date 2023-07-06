@@ -199,7 +199,6 @@ export default {
             filtroLotes: '',
             filtroEstatus: '',
 
-            filtroTipos: '',
             carreras: null,
             tipos: null,
             modalVisible: false,
@@ -212,10 +211,14 @@ export default {
     methods: {
         clearFiltros() {
             this.filtroCarrera = ''
-            this.filtroTipos = ''
             this.filtroLike = ''
+            this.filtroLotes = ''
+            this.filtroEstatus = ''
             this.selectedOptionCarrera = null
-            this.selectedOptionTipos = null
+            this.selectedOptionLotes = null
+            this.selectedOptionEstatus = null
+            this.inputValue = '' 
+
             this.get()
         },
         handleInput() {
